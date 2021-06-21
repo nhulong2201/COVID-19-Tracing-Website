@@ -1,0 +1,671 @@
+<!--https://api.mapbox.com/geocoding/v5/mapbox.places/San%20Francisco.json?access_token=pk.eyJ1Ijoid2RjbHZjciIsImEiOiJja29ndngxeTAwZWlkMndydGhuZWxjanRrIn0.vP5stZqvUDNWXsOqzOPbyg-->
+
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8' />
+  <title>Admin Dashboard | Covid Tracking</title>
+  <script src="https://kit.fontawesome.com/6fa215a695.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" type="text/css" href="stylesheets/java_nhap.css" />
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+  <script src="./javascripts/covid.js" defer></script>
+  <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css' rel='stylesheet' />
+
+    <!--geocoder-->
+  <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js'></script>
+  <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css' type='text/css' />
+
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <meta name="google-signin-client_id" content="195247369660-khs98ng8dducmrtrm2fqgilrha5nagp0.apps.googleusercontent.com">
+
+  <script src="javascripts/main.js" defer></script>
+
+
+</head>
+<body onload="getAdminProfile()">
+
+  <!--start of #app-->
+  <div id="app" >
+    <!--start of header-->
+    <header>
+        <div class="panel">
+          <div class="g-signin2" style="display:none"></div>
+          <img src="images/logo1.png" alt="Logo Covid Tracking" id="covidresponse_logo">
+          <a href="https://www.sahealth.sa.gov.au/wps/wcm/connect/public+content/sa+health+internet">
+              <img src="images/sa_health.png" alt="SA health logo" id="SAhealth_logo">
+          </a>
+          <img  src="/images/covid_tracking_logo_with_title.png" alt="covid tracking logo" style="height:8vh;">
+
+          <div class="dropdown">
+            <button class="dropbtn"><img src="images/arrow.png" alt="arrow" id="arrow"></button>
+            <p class="name dropbtn" id="name_user_btn">{{adminProfile.first_name}} {{adminProfile.last_name}}</p>
+            <div class="dropdown-content admin_drop">
+
+              <a v-on:click="admin_show_profile_func" class="cursor"><i class="fas fa-user-cog"></i> manage account</a>
+              <a href="/admin/signup"><i class="fas fa-user-plus"></i> add new admin</a>
+              <a class="cursor" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Log out</a>
+            </div>
+          </div>
+
+
+          <img src="images/avatar.png" alt="avatar" id="avatar">
+
+          <div style="clear:both"></div>
+        </div>
+    <nav class="navbar">
+        <div class="nav_header">
+            Admin Dashboard
+        </div>
+        <ul id="services">
+            <li class="navbar_tab" v-bind:class="{navbar_tab_selected: venue_selected}" v-on:click="chooseVenue"><i class="fas fa-building"></i><a href="#services">Venue</a></li>
+            <li class="navbar_tab" v-bind:class="{navbar_tab_selected: people_selected}" v-on:click="choosePeople"><i class="fas fa-users" ></i><a href="#services">People</a></li>
+            <li class="navbar_tab" id="hotspots_button_indi" v-bind:class="{navbar_tab_selected: hotspot_selected}" v-on:click="chooseHotspot"><i class="fas fa-map-marked"></i><a href="#admin_workspace">Hotspot</a></li>
+        </ul>
+        <div style="clear:both"></div>
+    </nav>
+    </header>
+    <!--end of header-->
+
+    <!--start of main-->
+    <main id="admin_workspace" style="height:100vh;">
+
+      <!--<div>-->
+      <!--  <div class="admin_circle"><p style="display:flex;justify-content:center;width:100px;height:100px;">200</p></div>-->
+      <!--</div>-->
+
+      <!--#######################start of hotspots pag############-->
+
+      <div id="hotspot" v-if="hotspot_selected">
+        <nav class="admin_little_nav">
+          <ul style="list-style: none;width: 30vw;">
+            <li class="admin_little_nav_item" style="border-right: solid 3px teal; padding: 0 1vw;">
+            <a v-on:click="admin_showmap"><i class="fas fa-map-marker-alt"></i> View map</a>
+            </li>
+            <li class="admin_little_nav_item">
+              <a v-on:click="admin_show_hotspot_list_func"><i class="fas fa-list"></i> View list</a>
+            </li>
+          </ul>
+
+        </nav>
+        <div v-if="admin_show_hotspot_list">
+
+            <button v-on:click="admin_add_hotspot_popup_func" class="admin_add_button"><i class="fas fa-plus-square"></i> Add new hotspot</button>
+
+            <input type="checkbox" v-model="admin_show_active_hotspots_only" style="height: 2vw;width: 2vh;position: relative;left: 43vw;top:2.2vh"><label style="font-size:1vw; position: relative;left: 43vw;top:1vh"> Show active hotspot only</label><br>
+            <h3>Total current hotspots: {{hotspots_list.length }}</h3>
+            <table class="content-table" id="current_hotspots_table">
+              <thead>
+                <tr>
+                    <th>Hotspot ID</th>
+                    <th>Address</th>
+                    <th>Venue</th>
+                    <th>Start date</th>
+                    <th>End date</th>
+                    <th>Active</th>
+                    <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody >
+                <tr v-for="(item, index) in hotspots_list_sorted">
+                  <td>{{ item.id }}</td>
+                  <td>{{ item.address }}</td>
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.start_date }}</td>
+                  <td>{{ item.end_date }}</td>
+                  <td v-bind:class="getClass(`${item.active}`)">{{ item.active }}</td>
+                  <td><button class="button_in_table" onclick="admin_show_extend_timeframe_popup_func(this)"><i class='fas fa-clock'></i> Reset</button><button class="button_in_table" onclick="adminDeleteHotspot(this)"><i class='fas fa-clock'></i> Delete</button></td>
+
+                  <!--<button class="button_in_table" onclick="admin_deactivate_hotspot(this)"><i class='fas fa-trash-alt'></i> deactivate</button></td>-->
+                </tr>
+              </tbody>
+
+
+            </table>
+
+        </div>
+      </div>
+      <!-----------------end of hotspots---------------------->
+
+      <!---------------------start of people page----------------->
+      <div id="people" v-if="people_selected">
+
+        <nav class="admin_little_nav" style="left: 48vw;">
+          <ul style="list-style: none;width: 30vw;">
+            <li class="admin_little_nav_item" style="border-right: solid 3px teal; padding: 0 1vw;">
+              <a v-on:click="admin_show_personal_accounts_func"><i class="fas fa-users" style="color:#F4BB44"></i> Personal Accounts</a>
+            </li>
+            <li class="admin_little_nav_item">
+              <a v-on:click="admin_show_business_accounts_func"><i class="fas fa-briefcase" style="color:#3b5998"></i> Business Accounts</a>
+            </li>
+          </ul>
+        </nav>
+        <div class="admin_create_venue_css"><i class="fas fa-info-circle"></i> To <em><i>create</i></em> a user account, go to <a class="cursor" style="text-decoration:underline; color: teal" href="https://ide-2b9585f19c4541d4867c07204cbf0f8a-8080.cs50.ws/"><strong>sign-up page</strong></a>.</div>
+
+        <div v-if="admin_show_personal_accounts">
+          <h3>Total personal accounts: {{admin_people_list.length }}</h3>
+          <!--search-->
+          <label style="font-size:1.2vw">Search for a person by keyword: </label>
+          <input type="text" v-model="admin_search_word_person" class="searchArea" style="margin-top:0.5vh;" placeholder="e.g.ID,name,address">
+          <!-----------table start--------------->
+          <div style="max-height:90vh; overflow:scroll;">
+           <table class="content-table" id="admin_personal_account_table">
+            <thead>
+              <tr>
+                  <th >Person ID</th>
+                  <th >Name</th>
+                  <th>DOB</th>
+                  <th >Address</th>
+                  <th>phone</th>
+                  <th>email</th>
+                  <th >Checkin history</th>
+                  <th >Action</th>
+              </tr>
+            </thead>
+
+            <tbody v-for="(item, index) in admin_people_list_sorted" style="font-size:1vw;">
+              <tr  >
+                <td>{{ item.id }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.DOB }}</td>
+                <td>{{ item.address }}</td>
+                <td>{{ item.phone }}</td>
+                <!--v-bind for attributes-->
+                <td><a v-bind:href="'mailto:'+ item.email">{{ item.email }}</a></td>
+                <td><i class="fas fa-eye"></i><a class="cursor" style="text-decoration:underline;" onclick="admin_view_history_person(this)"> view</a></td>
+                <td><button class="button_in_table" onclick="admin_edit_person(this)"><i class="fas fa-user-edit"></i> Manage Account</button><br><button onclick="admin_delete_person(this)"><i class='fas fa-trash-alt'></i> Delete Account</button></td>
+                <!--<button class="button_in_table" onclick="admin_deactivate_hotspot(this)"><i class='fas fa-trash-alt'></i> deactivate</button></td>-->
+              </tr>
+
+            </tbody>
+            </table>
+          </div>
+
+          <!------------------------table end---------->
+        </div>
+
+        <div v-if="admin_show_business_accounts">
+          <!--search-->
+          <h3>Total business accounts: {{admin_manager_list.length }}</h3>
+          <label style="font-size:1.2vw">Search for a manager by keyword: </label>
+          <input type="text" v-model="admin_search_word_manager2" class="searchArea" style="margin-top:0.5vh;" placeholder="e.g.ID,name">
+
+          <div style="max-height:90vh; overflow:scroll;">
+           <table class="content-table" id="admin_business_account_table">
+            <thead>
+              <tr>
+                  <th >Manger ID</th>
+                  <th >Name</th>
+                  <th>DOB</th>
+                  <th>phone</th>
+                  <th>email</th>
+                  <th>Business</th>
+                  <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody v-for="(item, index) in admin_manager_list_sorted" style="font-size:1vw;">
+              <tr  >
+                <td>{{ item.manager_id }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.DOB }}</td>
+                <td>{{ item.phone }}</td>
+                <!--v-bind for attributes-->
+                <td><a v-bind:href="'mailto:'+ item.email">{{ item.email }}</a></td>
+                <td>{{ item.venue }}</td>
+                <td><button class="button_in_table" onclick="admin_edit_manager_account(this)"><i class="fas fa-user-edit"></i> Manage Account</button><br><button onclick="admin_delete_manager(this)"><i class='fas fa-trash-alt'></i> Delete Account</button></td>
+                <!--<button class="button_in_table" onclick="admin_deactivate_hotspot(this)"><i class='fas fa-trash-alt'></i> deactivate</button></td>-->
+              </tr>
+
+            </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <!-------------------end of people page--------------->
+
+      <!---------------------start of venue page----------------->
+      <div id="venue" v-if="venue_selected">
+        <div class="admin_create_venue_css"><i class="fas fa-info-circle"></i> To <em><i>create</i></em> a venue, go to <a class="cursor" style="text-decoration:underline; color: teal" v-on:click="chooseHotspot"><strong>map</strong></a> and type in the full address in search bar.</div>
+        <h3>Total venues: {{admin_venue_list.length }}</h3>
+
+
+        <label style="font-size:1.2vw">Search for a venue by keyword: </label>
+        <input type="text" v-model="admin_search_word_venue" class="searchArea" style="margin-top:0.5vh;" placeholder="e.g.ID,name,address">
+
+
+        <div style="max-height:90vh; overflow:scroll;">
+          <table class="content-table" id="admin_venue_table"  >
+          <thead>
+            <tr>
+                <th >Venue ID</th>
+                <th >Name</th>
+                <th >Address</th>
+                <th >Checkin code</th>
+                <th >Manager</th>
+                <th>phone</th>
+                <th>email</th>
+                <th>View checkin</th>
+                <th >Action</th>
+            </tr>
+          </thead>
+
+          <tbody >
+            <tr v-for="(item, index) in admin_venue_List_sorted" style="font-size:1vw;" >
+              <td>{{ item.venue_id }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.address }}</td>
+              <td>{{ item.code }}</td>
+              <td>{{ item.manager }}</td>
+              <td>{{ item.phone }}</td>
+              <!--v-bind for attributes-->
+              <td><a v-bind:href="'mailto:'+ item.email">{{ item.email }}</a></td>
+              <td><i class="fas fa-eye"></i><a class="cursor" style="text-decoration:underline;" onclick="admin_view_history_venue(this)"> view</a></td>
+              <td><button class="button_in_table" onclick="admin_edit_manager(this)"><i class="fas fa-user-edit"></i> Assign manager</button><br><button onclick="admin_delete_venue(this)"><i class='fas fa-trash-alt'></i> Delete</button></td>
+              <!--<button class="button_in_table" onclick="admin_deactivate_hotspot(this)"><i class='fas fa-trash-alt'></i> deactivate</button></td>-->
+            </tr>
+          </tbody>
+
+
+        </table>
+        </div>
+
+
+      </div>
+      <!------------------------end of venue page----------->
+
+      <!-------------------------update profile page--------------------------->
+      <div class="profile" v-if="admin_show_profile">
+                    <div class="left_profile">
+                        <div class="avatar">
+                            <img src="images/avatar.png" alt="avatar" id="avatar_profile">
+                            <h3 id="name_user">{{individual.username}}</h3>
+                        </div>
+                        <div class="profile_options">
+                            <ul>
+                                <li v-on:click="admin_show_profile_func2" ><a class="cursor">Profile</a></li>
+                                <li v-on:click="admin_show_update_profile_func" ><a class="cursor">Update profile</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+
+                    <div class="right_profile" v-if="this.admin_show_profile2">
+                        <div class="right_profile_container">
+                        <div class="box_left">
+                            <div class="info">
+                                <h4>First name</h4>
+                                <p id="first_name_user">{{adminProfile.first_name}}</p>
+                            </div>
+                            <div class="info">
+                                <h4>Email</h4>
+                                <p id="email_user">{{adminProfile.email}}</p>
+                            </div>
+                        </div>
+
+                        <div class="box_right">
+                            <div class="info">
+                                <h4>Last name</h4>
+                                <p id="last_name_user">{{adminProfile.last_name}}</p>
+                            </div>
+                            <div class="info">
+                                <h4>Phone number</h4>
+                                <p id="phone_user">{{adminProfile.phone}}</p>
+                            </div>
+
+                        </div>
+                        </div>
+                    </div>
+        <div v-if="admin_show_update_profile" id="admin_show_update_profile" class="right_profile">
+
+          <div class="right_profile_container">
+            <div class="box_left">
+                <div class="info">
+                    <h4>First name</h4>
+                    <input type="text" v-model="adminProfile2.first_name" >
+
+                </div>
+                <div class="info">
+                    <h4>Email</h4>
+                    <input type="text" v-model="adminProfile2.email" >
+                </div>
+                <div class="info">
+                    <h4>New Password</h4>
+                    <input type="password" id="admin_pass">
+                </div>
+            </div>
+
+            <div class="box_right">
+                <div class="info">
+                    <h4>Last name</h4>
+                    <input type="text" v-model="adminProfile2.last_name" >
+                </div>
+
+                <div class="info">
+                    <h4>Phone number</h4>
+                    <input type="text" v-model="adminProfile2.phone" >
+                </div>
+                <div class="info">
+                    <h4>Repeat new Password</h4>
+                    <input type="password" id="admin_rep_pass">
+                </div>
+            </div>
+        </div>
+        <!--<input type="submit" value="SUBMIT">-->
+        <button id="button_profile_indi" v-on:click="updateAdmin">SUBMIT</button>
+        <p id="profile_individual_update"  style="color: teal"></p>
+      </div>
+    </div>
+      <!-----------------------update profile page end--------------->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <!----------------Some pop up divs------------------------->
+      <!--Note: code of this popup window is based on resources on w3school-->
+      <div class="admin_popup" style="margin: 0;" v-if="admin_show_popup">
+
+
+        <!--------pop up1-------------->
+        <div class="admin_popup_content " v-if="admin_show_add_venue_popup">
+          <div class="admin_popup_after">
+            <label class="admin_login_form_label">Venue name:</label>
+            <input id="admin_new_venue_name" type="text" class="admin_login_form" style="width: 20vw;display: inline;">
+            <button onclick="admin_add_venue()" class="admin_search_button">add</button>
+          </div>
+        </div>
+        <!---------------pop up 1 finish---------->
+
+        <!-------------pop up 2----------------->
+
+        <div class="admin_popup_content" v-if="admin_show_reset_timeframe_popup">
+
+            <div class="admin_popup_after">
+              <!--<label class="admin_login_form_label">Timeframe:  </label>-->
+              <!--<select v-model="admin_extend_timeframe_days" name="days" class="admin_login_form_label" style="font-size:1vw;">-->
+              <!--  <option value="1">1</option>-->
+              <!--  <option value="2">2</option>-->
+              <!--  <option value="3">3</option>-->
+              <!--  <option value="4">4</option>-->
+              <!--  <option value="5">5</option>-->
+              <!--  <option value="6">6</option>-->
+              <!--  <option value="7">7</option>-->
+              <!--</select>-->
+              <!--<label class="admin_login_form_label">  days , after the start date</label>-->
+              <h3>Reset hotspot</h3>
+              <label >Start date:  </label>
+              <input type="date" name="trip-start" value="2021-06-01" min="2021-06-01" max="2025-12-31" v-model="admin_reset_hotspot_start_date" class="searchArea">
+
+              <label >   Start time:  </label>
+              <input type="time"   min="00:00" max="23:59"  required v-model="admin_reset_hotspot_start_time" class="searchArea" style="margin-top:0.5vh;">
+              <br>
+
+              <label >End date:  </label>
+              <input type="date" name="trip-start" value="2021-06-01" min="2021-06-01" max="2025-12-31" v-model="admin_reset_hotspot_end_date" class="searchArea">
+
+              <label >   End time:  </label>
+              <input type="time"   min="00:00" max="23:59"  required v-model="admin_reset_hotspot_end_time" class="searchArea" style="margin-top:0.5vh;">
+              <button  class="admin_search_button" v-on:click="admin_extend_timeframe">confirm</button>
+              <!--<button  class="admin_search_button">confirm</button>-->
+            </div>
+
+        </div>
+        <!-------------pop up 2 end----------------->
+
+        <!-------------pop up 3----------------->
+
+        <div class="admin_popup_content" v-if="admin_add_hotspot_popup">
+
+            <div class="admin_popup_after">
+              <h1>New hotspot</h1>
+              <br>
+              <h3>Step1: choose timeframe</h3>
+              <label >Start date:</label>
+              <input type="date" name="trip-start" value="2021-06-01" min="2021-06-01" max="2025-12-31" v-model="admin_newhotspot_start_date" class="searchArea">
+
+              <label >   Start time: </label>
+              <input type="time"   min="09:00" max="18:00" required v-model="admin_newhotspot_start_time" class="searchArea" style="margin-top:0.5vh;">
+              <br>
+
+              <label>End date:</label>
+              <input type="date" name="trip-start" value="2021-06-01" min="2021-06-01" max="2025-12-31" v-model="admin_newhotspot_end_date" class="searchArea">
+
+              <label >   End time: </label>
+              <input type="time"  min="09:00" max="18:00"  required v-model="admin_newhotspot_end_time" class="searchArea" style="margin-top:0.5vh;">
+
+              <hr>
+              <h3>Step2: choose venue</h3>
+              <h3>Search for a venue by keyword: </h3>
+              <input type="text" v-model="admin_search_word" class="searchArea" style="margin-top:0.5vh;">
+                <div v-for="choice in admin_search_result">
+                  <input type="radio" v-model="admin_choice" name="admin_venue_choices_id" v-bind:value="choice.venue_id" style="margin-top:0.5vh;">
+                  <label>Venue(id {{ choice.venue_id }}): {{ choice.name}}</label>
+                </div>
+              <button class="admin_search_button" style="margin-top: 2vh" v-on:click="admin_add_new_hotspot"><i class="fas fa-check-circle" ></i> Confirm</button>
+
+
+            </div>
+
+        </div>
+        <!-------------pop up 3 end----------------->
+
+        <!-------------pop up 4----------------->
+
+        <div class="admin_popup_content" v-if="admin_edit_manager_popup">
+
+            <div class="admin_popup_after">
+
+              <button class="black_n_white_button center_button" v-on:click="adminRemoveManagerFromVenue" style="font-size:1.3vw; font-weight:bold; padding: 2vh;">Remove manager</button>
+              <h2 class="hr_words_middle"><span>or</span></h2>
+              <h3>Assign a new manager from database</h3>
+              <p>Search for a manager by name or ID: </p>
+              <input type="text" v-model="admin_search_word_manager" class="searchArea" style="margin-top:0.5vh;">
+                <div v-for="choice in admin_search_result_manager">
+                  <input type="radio" v-model="admin_choice" v-bind:value="choice.manager_id" style="margin-top:0.5vh;">
+                  <label>Manager(id {{ choice.manager_id }}): {{ choice.name}}</label>
+                </div>
+              <button class="admin_search_button" style="margin: 2vh auto 2vh 0" v-on:click="admin_edit_manager_confirm"><i class="fas fa-check-circle" ></i> Confirm</button>
+              <br>
+              <p>Didn't find the right manager? <a href="https://ide-2b9585f19c4541d4867c07204cbf0f8a-8080.cs50.ws/">sign up new manager</a></p>
+              <!--<button class="black_n_white_button">sign up new manager</button>-->
+
+
+            </div>
+
+        </div>
+        <!-------------pop up 4 end----------------->
+
+
+
+
+        <!-------------pop up 5----------------->
+
+        <div class="admin_popup_content" v-if="admin_show_history_person_popup">
+
+            <div class="admin_popup_after">
+              <p>Total checkins: {{ admin_checkin_history.length }}</p>
+              <div style="max-height:90vh; overflow:scroll;">
+               <table class="content-table admin_popup_table"  >
+                <thead >
+                  <tr >
+                      <th >Checkin ID</th>
+                      <th >Location</th>
+                      <th >Time</th>
+                      <th >Is Hotspot</th>
+                  </tr>
+                </thead>
+
+                <tbody >
+                  <tr v-for="(item, index) in admin_checkin_history" style="font-size:1vw;" >
+                    <td>{{ item.checkin_id }}</td>
+                    <td>{{ item.address }}</td>
+                    <td>{{ item.checkin_date }}</td>
+
+                    <!--//set class acording to value!!!-->
+                    <td v-bind:class="getClass(`${item.isHotspot}`)">{{ item.isHotspot }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+
+            </div>
+
+        </div>
+        <!-------------pop up 5 end----------------->
+
+
+
+        <!-------------pop up 6----------------->
+
+        <div class="admin_popup_content" v-if="admin_show_popup6">
+
+            <div class="admin_popup_after" id="admin_popup6">
+
+              <form>
+                <div>
+                  <label>Name: </label>
+                  <input type="text" v-model="admin_name">
+                </div>
+
+                <div>
+                  <label>DOB: </label>
+                <input type="date" v-model="admin_DOB">
+                </div>
+
+                <div>
+                  <label>Address: </label>
+                <input type="text" v-model="admin_address">
+                </div>
+
+                <div>
+                  <label>Phone: </label>
+                <input type="text" v-model="admin_phone">
+                </div>
+
+                <div>
+                  <label>Email: </label>
+                <input type="email" v-model="admin_email">
+                </div>
+
+                <button type="submit" class="admin_search_button" style="display:flex;margin:3vh auto;" v-on:click="adminUpdatePerson">Update</button>
+
+              </form>
+            </div>
+
+        </div>
+        <!-------------pop up 6 end----------------->
+
+
+        <!-------------pop up 7----------------->
+
+        <div class="admin_popup_content" v-if="admin_show_popup7">
+
+            <div class="admin_popup_after" id="admin_popup7">
+
+              <form>
+                <div>
+                  <label>Name: </label>
+                  <input type="text" v-model="admin_name">
+                </div>
+
+                <div>
+                  <label>DOB: </label>
+                <input type="date" v-model="admin_DOB">
+                </div>
+
+                <div>
+                  <label>Phone: </label>
+                <input type="text" v-model="admin_phone">
+                </div>
+
+                <div>
+                  <label>Email: </label>
+                <input type="email" v-model="admin_email">
+                </div>
+
+                <button type="submit" class="admin_search_button" style="display:flex;margin:3vh auto;" v-on:click="adminUpdateManager">Update</button>
+
+              </form>
+            </div>
+
+        </div>
+        <!-------------pop up 7 end----------------->
+
+         <!-------------pop up 8----------------->
+
+        <div class="admin_popup_content" v-if="admin_show_history_venue_popup">
+
+            <div class="admin_popup_after">
+              <p>Total checkins: {{ admin_checkin_history_venue.length }}</p>
+              <div style="max-height:90vh; overflow:scroll;">
+               <table class="content-table admin_popup_table"  >
+                <thead >
+                  <tr >
+
+                      <th >Time</th>
+                      <th>Person ID</th>
+                      <th >Is Hotspot</th>
+                  </tr>
+                </thead>
+
+                <tbody >
+                  <tr v-for="(item, index) in admin_checkin_history_venue" style="font-size:1vw;" >
+                    <td>{{ item.checkin_date }}</td>
+                    <td>{{ item.indi_id }}</td>
+                    <!--//set class acording to value!!!-->
+                    <td v-bind:class="getClass(`${item.isHotspot}`)">{{ item.isHotspot }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+
+            </div>
+
+        </div>
+        <!-------------pop up 8 end----------------->
+
+
+
+
+        <!----------------Some pop up divs end------------------------->
+
+
+
+
+
+        <button v-on:click="admin_close_popup" class="admin_close"><i class="fas fa-window-close "></i></button>
+      </div>
+
+
+    </main>
+    <!--end of main-->
+
+  </div>
+  <!--end of #app-->
+
+  <!--somehow the map won't show if I place #map2 in main tag-->
+  <div id='map' style="position:relative; top:-95vh;left:1.5vw; " ></div>
+
+
+
+</body>
+</html>
+
+
+

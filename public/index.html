@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+    <html lang="en">
+        <head>
+             <title>Welcome to Covid-19 contact tracing website</title>
+             <meta charset="UTF-8">
+             <link rel="stylesheet" type="text/css" href="stylesheets/java_nhap.css">
+             <!--link for css of Vy register-->
+            <!--for GOOGLE log in start here-->
+            <script src="https://apis.google.com/js/platform.js" async defer></script>
+            <meta name="google-signin-client_id" content="195247369660-khs98ng8dducmrtrm2fqgilrha5nagp0.apps.googleusercontent.com">
+            <!--for GOOGLE log in end here-->
+             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+                <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+                <script src="javascripts/covid.js" defer></script>
+                <script src="https://kit.fontawesome.com/6fa215a695.js" crossorigin="anonymous"></script>
+            <link rel="preconnect" href="https://fonts.gstatic.com">
+            <link href="https://fonts.googleapis.com/css2?family=Yeseva+One&display=swap" rel="stylesheet">
+
+
+            <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+            <!--<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>-->
+            <!--<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />-->
+            <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css' rel='stylesheet' />
+
+    <!--geocoder-->
+  <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js'></script>
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css' type='text/css' />
+        </head>
+        <body id="Vy-whole">
+            <div id="app" >
+            <!--mainpage-->
+                <div id="Vy-mainpage" v-if="welcome==='mainpage'">
+                    <div id="Vy-header">
+                      <img  src="images/logo1.png" alt="Logo Covid Tracking" class="Vy-logo1"   />
+                      <a href="https://www.sahealth.sa.gov.au/wps/wcm/connect/public+content/sa+health+internet">
+                        <img src="images/sa_health.png" alt="SA health logo" id="Vy-SAhealth_logo">
+                      </a>
+                      <img class="Vy-logo1"  src="/images/covid_tracking_logo_with_title.png" alt="covid tracking logo">
+                      <!--<img src="images/logo1.png" alt="Logo Covid Tracking" id="covidresponse_logo">-->
+                      <div id="Vy-header-right">
+                          <a v-on:click="welcome='login'" id= "Vy-log_in_button" href="https://ide-2b9585f19c4541d4867c07204cbf0f8a-8080.cs50.ws/login" > Log in</a>
+                          <!--<a v-on:click="welcome='login'" id= "Vy-log_in_button"> Log in</a>-->
+                          <a id= "Vy-sign_up_button" href="#" v-on:click="welcome='register'">Sign up</a>
+                          <!--move above sign up button <a id= "Vy-log_in_button" href="#" v-on:click="welcome='login'"> Log in</a>-->
+                      </div>
+                    </div>
+
+
+
+
+                    <div id="Vy-background_container">
+
+                        <img src="images/contact-tracing.jpg" id="Vy-background" alt="a background of people with masks"  >
+                        <div id="Vy-slogan">
+                            <!--<p id="Vy-slide_message"><span id="Vy-bliking_arrow">&#8592;</span>Slide to the left to view current hotspot on map</p>-->
+                            <p id="Vy-slogan-message"><span style="font-size: 3vw; font-weight: normal"> Help </span><span style="font-size: 5vw; font-weight: bold"> Stop </span><span style="font-size: 3vw; font-weight: normal"> the </span><span style="font-size: 5vw; font-weight: bold"> Spread </span><br></p>
+                            <h3>Log in to perform Covid check-in</h3>
+
+                        </div>
+
+
+
+                    </div>
+
+
+                    <footer id="Vy-footer">
+                        <h4>About SA Health</h4>
+                        <p>SA Health: Your official portal to public health services, hospitals, health information and health careers in South Australia</p>
+                        <p>@2021 SA Health(CC) BY-NC-ND</p>
+                    </footer>
+                </div>
+            <!--Register page-->
+            <div id="Vy-registerpage" v-if="welcome==='register'">
+                <div class="Vy-BACK" ><button type="button" class="BACK1 BACK2"  v-on:click="welcome='mainpage'"><i class="fas fa-chevron-left"></i> BACK </button></div>
+                <div  class="container" >
+
+                    <!--<div class="row">-->
+                    <div class="row justify-content-md-center col-auto" >
+                        <div class="col-auto"><h1 id="Vy-title">Register as ...</h1></div>
+                    </div>
+                    <div class="row justify-content-md-center">
+                        <div class="col-md-6 ">
+                            <div class="row justify-content-md-center">
+                                <div class="col-auto">
+                                    <button id="Vy-U-button" v-on:click="welcome='user_signup'">User, start here!</button>
+                                </div>
+                            </div>
+                            <div class="row justify-content-md-center">
+                                <div class="col-auto">
+                                    <img src="images/masks.png" alt="User Icon">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                          <div class="row justify-content-md-center">
+                                <div class="col-auto">
+                                    <button id="Vy-M-button" v-on:click="welcome='manager_signup'">Venue manager, start here!</button>
+                                </div>
+                          </div>
+                          <div class="row justify-content-md-center">
+                                <div class="col-auto">
+                                    <img src="images/venuemanager.png" alt="Venue Manager Icon" id="Vy-manager-photo">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--User Sign up page-->
+             <div id="Vy-user" v-if="welcome ==='user_signup'">
+                 <div class="Vy-BACK" ><button type="button" class="BACK1 BACK2" v-on:click="welcome='register'"><i class="fas fa-chevron-left"></i> BACK </button></div>
+                     <div class="Vy-Usersignupbox">
+                      <!--<div id="Vy-main_logo" > <img  src="pic_trulli.jpg" alt="Italian Trulli"  width="40" height="40"  /></div>-->
+                        <img  src="images/logo1.png" alt="Logo Covid Tracking" class="Vy-logo1"   />
+                        <br/>
+                      <div class="Vy-Usermain_title">Sign up for stopping COVID spread!</div>
+
+                      <div class="Vy-Useremail-box">
+                          <p class="Vy-Usertitle">Sign up as an USER by filling this form:</p>
+
+                           <div id="Vy-Userinformation">
+                            <div class="container">
+                    <!--for existed email/username-->
+                               <div class="row">
+                                   <div class="col-md">
+                                      <div id="Vy_user_signup_fail2" style="color: red; display:none;"><i class="fas fa-times-circle"></i>Username or email address or phone number already taken.</div>
+                                   </div>
+                               </div>
+                    <!--for firstname-->
+
+
+
+                                  <div class="row">
+                                    <div class="col-md-6">
+                                      <label  class="Vy-questions">First name:</label>
+                                    </div>
+                                    <div class="col-md-6">
+                                      <!--<input  name="first_name" action="received()" class="Vy-answers" type="text" id="Vy-Userfirstname" placeholder="Enter your first name." required />-->
+                                       <input  name="first_name" onchange="document.getElementById('user_firstname_fail_message').style.display='none';"  type="text" class="Vy-answers"  id="Vy-Userfirstname" placeholder="Enter your first name." required />
+                                    </div>
+                                  </div>
+
+                                  <div class="row">
+                                        <div class="col-md">
+                                            <p id="user_firstname_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your first name</p>
+                                        </div>
+                                  </div>
+                    <!--for lastname-->
+                                  <div class="row">
+                                        <div class="col-md-6">
+                                          <label  class="Vy-questions">Last name:</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                          <input name="last_name" class="Vy-answers" onchange="document.getElementById('user_lastname_fail_message').style.display='none';" type="text" id="Vy-Userlastname" placeholder="Enter your last name." required>
+                                        </div>
+                                    </div>
+
+                                  <div class="row">
+                                        <div class="col-md">
+                                            <p id="user_lastname_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your last name</p>
+                                        </div>
+                                  </div>
+                    <!--for DOB-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                  <label  class="Vy-questions">Date of birth:</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                  <input name="DOB" class="Vy-answers" onchange="document.getElementById('user_DOB_fail_message').style.display='none';" type="date" id="Vy-UserDOB" required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                    <p id="user_DOB_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your date of birth</p>
+                                                </div>
+                                    </div>
+                    <!--for phone-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                  <label  class="Vy-questions">Phone number:</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                  <input name="phone" class="Vy-answers" onchange="document.getElementById('user_phone_fail_message').style.display='none';" type="text" id="Vy-Userphone" placeholder="eg: 0421 123 456" required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                    <p id="user_phone_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your phone</p>
+                                                </div>
+                                    </div>
+                    <!--for  address-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                  <label  class="Vy-questions">Address:</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                  <input name="address" class="Vy-answers" onchange="document.getElementById('user_address_fail_message').style.display='none';" type="text" id="Vy-Useraddress" placeholder="Enter your address." required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                    <p id="user_address_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your address</p>
+                                                </div>
+                                    </div>
+                    <!--for username-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                  <label  class="Vy-questions">Username:</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                 <input name="username" class="Vy-answers" onchange="document.getElementById('user_username_fail_message').style.display='none';"  onblur="checkUsernameDuplicate(this.value)"  type="text" id="Vy-Userusername" placeholder="Enter an username." required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                     <p id="user_username_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your username</p>
+                                                </div>
+                                    </div>
+                       <!--for email-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                   <label  class="Vy-questions">Email:</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                  <input name="email" class="Vy-answers" onchange="document.getElementById('user_email_fail_message').style.display='none';" type="email" id="Vy-Useremail" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="eg:example@gmail.com"  onblur="checkEmailDuplicate(this.value)" required>
+                                                    <!--<input type="submit" required>-->
+
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                     <p id="user_email_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your email</p>
+                                                </div>
+                                    </div>
+
+                        <!--for password-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                   <label   class="Vy-questions">Create a password:</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                  <input name="password" class="Vy-answers"  onchange="document.getElementById('user_password_fail_message').style.display='none';"  type="password" id="Vy-Userpassword" pattern=".{8,}" title="Eight or more characters" placeholder="Create a password" required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                      <p id="user_password_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your password</p>
+                                                </div>
+                                    </div>
+                        <!--for repeate password-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                   <label   class="Vy-questions">Repeat Password</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                 <input name="psw_repeat" onchange="check_repeat_pass()"  type="password" class="Vy-answers" id="Vy-repeatedpassword" placeholder="Repeat Password"  required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                       <p id="user_psw_repeat_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your password again</p>
+                                                </div>
+
+                                    </div>
+                         <!--for not matching password   -->
+                                     <div class="row">
+                                                            <div class="col-md">
+                                                                    <div id="Vy_user_signup_fail" style="color: red;display:none;"><i class="fas fa-times-circle"></i> Password doesn't match.</div>
+                                                            </div>
+                                    </div>
+                         <!--for duplicate username/email-->
+                                      <div class="row">
+                                                            <div class="col-md">
+                                                                    <div id="user_duplicate_fail_message" style="color: red;display:none;"><i class="fas fa-times-circle"></i>  Email/username already exists.</div>
+                                                            </div>
+                                     </div>
+                              </div>
+
+                                    <button type="submit" onclick="submit_user_signup()" class="Vy-Usersignup_button">Submit</button>
+                                    <!--<input type="submit" <button onclick="submit_user_signup()" class="Vy-Usersignup_button">Sign Up</button>>-->
+
+                                    <!--<button type="button" onclick="submit_user_signup()" class="Vy-Usersignup_button">Sign Up</button>-->
+                                    <p class="Vy-agreed">By submiting this form, you agreed with all of our Term's and Condition.</p>
+                              </div>
+
+                    </div>
+
+
+                        <!--<p>Have an account?  </p>-->
+                        <!--<div class="Vy-login">LOG IN</div>-->
+                           <pre class="Vy-have-account"> Have an account?  </pre>
+                            <br>
+                            <div><button class="Vy-login" onclick= "window.location.href='https://ide-2b9585f19c4541d4867c07204cbf0f8a-8080.cs50.ws/login'">LOG IN</button></div>
+                </div>
+            </div>
+            <!--Manager Sign up page-->
+            <div id="Vy-manager" v-if="welcome==='manager_signup'">
+                     <div class="Vy-BACK" ><button type="button" class="BACK1 BACK2" v-on:click="welcome='register'"><i class="fas fa-chevron-left"></i> BACK </button></div>
+                     <div class="Vy-Usersignupbox">
+                        <img  src="images/logo1.png" alt="Logo Covid Tracking" class="Vy-logo1"   />
+                        <br/>
+                      <div class="Vy-Usermain_title">Sign up for stopping COVID spread!</div>
+
+
+                      <div class="Vy-Useremail-box">
+                          <p class="Vy-Usertitle">Sign up as a MANAGER by filling this form:</p>
+                          <!--Change start here-->
+                         <form id="Vy-Managerinformation">
+                            <div class="container">
+                    <!--for existed email/username-->
+                               <div class="row">
+                                   <div class="col-md">
+                                      <div id="Vy_manager_signup_fail2" style="color: red;display:none;"><i class="fas fa-times-circle"></i>Username or email address already taken.</div>
+                                   </div>
+                               </div>
+
+                    <!--for firstname-->
+                                  <div class="row">
+                                    <div class="col-md-6">
+                                         <label   class="Vy-questions">First name:</label>
+                                    </div>
+                                    <div class="col-md-6">
+                                       <input name="first_name" class="Vy-answers" onchange="document.getElementById('manager_firstname_fail_message').style.display='none';" type="text" id="Vy-Managerfirstname" placeholder="Enter your first name." required>
+                                    </div>
+                                  </div>
+
+                                  <div class="row">
+                                        <div class="col-md">
+                                            <p id="manager_firstname_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your first name</p>
+                                        </div>
+                                  </div>
+
+                    <!--for lastname-->
+                                  <div class="row">
+                                        <div class="col-md-6">
+                                          <label  class="Vy-questions">Last name:</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                         <input name="last_name" class="Vy-answers" onchange="document.getElementById('manager_lastname_fail_message').style.display='none';" type="text" id="Vy-Managerlastname" placeholder="Enter your last name." required>
+                                        </div>
+                                    </div>
+
+                                  <div class="row">
+                                        <div class="col-md">
+                                            <p id="manager_lastname_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your last name</p>
+                                        </div>
+                                  </div>
+
+                    <!--for DOB-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                  <label  class="Vy-questions">Date of birth:</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                  <input name="DOB" class="Vy-answers" onchange="document.getElementById('manager_DOB_fail_message').style.display='none';" type="date" id="Vy-ManagerDOB"  required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                    <p id="manager_DOB_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your date of birth</p>
+                                                </div>
+                                    </div>
+                    <!--for phone-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                  <label  class="Vy-questions">Phone number:</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                  <input name="phone" class="Vy-answers"  onchange="document.getElementById('manager_phone_fail_message').style.display='none';" type="text" id="Vy-Managerphone" placeholder="eg: 0421 123 456" required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                    <p id="manager_phone_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your phone</p>
+                                                </div>
+                                    </div>
+                    <!--for  address-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                  <label class="Vy-questions">Address:</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                  <input name="address" class="Vy-answers" onchange="document.getElementById('manager_address_fail_message').style.display='none';" type="text" id="Vy-Manageraddress" placeholder="Enter your address." required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                    <p id="manager_address_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your address</p>
+                                                </div>
+                                    </div>
+                    <!--for username-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                  <label  class="Vy-questions">Username:</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                 <input name="username" class="Vy-answers" onchange="document.getElementById('manager_username_fail_message').style.display='none';"  onblur="manager_checkUsernameDuplicate(this.value)"  type="text" id="Vy-Managerusername" placeholder="Enter an username." required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                     <p id="manager_username_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your username</p>
+                                                </div>
+                                    </div>
+                       <!--for email-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                   <label  class="Vy-questions">Email:</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                  <input name="email" class="Vy-answers" onchange=" document.getElementById('manager_email_fail_message').style.display='none';" type="email" id="Vy-Manageremail"  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="eg:example@gmail.com"  onblur="manager_checkEmailDuplicate(this.value)" required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                     <p id="manager_email_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your email</p>
+                                                </div>
+                                    </div>
+
+                        <!--for password-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                   <label   class="Vy-questions">Create a password:</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                  <input name="password" class="Vy-answers" onchange="document.getElementById('manager_password_fail_message').style.display='none';" type="password" pattern=".{8,}" id="Vy-Managerpassword" title="Eight or more characters" placeholder="Create a password." required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                      <p id="manager_password_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your password</p>
+                                                </div>
+                                    </div>
+                        <!--for repeate password-->
+                                    <div class="row">
+                                                <div class="col-md-6">
+                                                   <label   class="Vy-questions">Repeat Password</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                 <input name="psw_repeat" onchange="manger_check_pass()"  class="Vy-answers" type="password" id="Vy_manager_repeat_password" placeholder="Repeat Password"  required>
+                                                </div>
+                                    </div>
+
+                                    <div class="row">
+                                                <div class="col-md">
+                                                       <p id="manager_psw_repeat_fail_message" style="color: red; display:none;"><i class="fas fa-times-circle"></i> Please enter your password again</p>
+                                                </div>
+                                    </div>
+                         <!--for not matching password   -->
+                                     <div class="row">
+                                                            <div class="col-md">
+                                     <div id="Vy_manager_signup_fail" style="color: red; background-color: #ffd1dc;display:none;"><i class="fas fa-times-circle"></i> Password doesn't match.</div>
+                            </div>
+                                    </div>
+                        <!--for duplicate username/email-->
+                                      <div class="row">
+                                                            <div class="col-md">
+                                                                    <div id="manager_duplicate_fail_message" style="color: red;display:none;"><i class="fas fa-times-circle"></i>  Email/username already exists.</div>
+                                                            </div>
+                                     </div>
+                             </div>
+                                    <input type="submit" onclick="submit_manager_signup()" class="Vy-Usersignup_button">
+                                    <!--<button type="button" onclick="submit_manager_signup()" class="Vy-Usersignup_button">Sign Up</button>-->
+                                    <div class="Vy-agreed">By submiting this form, you agreed with all of our Term's and Condition.</div>
+                            </form>
+
+                    </div>
+                    <pre class="Vy-have-account"> Have an account?  </pre>
+                    <br>
+                    <div> <button class="Vy-login" onclick= "window.location.href='https://ide-2b9585f19c4541d4867c07204cbf0f8a-8080.cs50.ws/login'">LOG IN</button></div>
+                </div>
+            </div>
+
+            </div>
+        </body>
+    </html>
+
+

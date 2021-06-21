@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>project_users</title>
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+        <link rel="stylesheet" type="text/css" href="stylesheets/java_nhap.css" />
+
+        <meta name='viewport' content='width=device-width, initial-scale=1' />
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+        <meta name="google-signin-client_id" content="195247369660-khs98ng8dducmrtrm2fqgilrha5nagp0.apps.googleusercontent.com">
+
+        <script src="javascripts/main.js" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+        <script src="javascripts/covid.js" defer></script>
+        <!--<script src="javascripts/main.js" defer></script>-->
+        <script src="https://kit.fontawesome.com/6fa215a695.js" crossorigin="anonymous"></script>
+        <!--geocoder-->
+  <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js'></script>
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css' type='text/css' />
+    </head>
+
+    <body onload="adminVue.get_profile_user()">
+         <div id="app">
+
+                              <!--HEADER-->
+        <!--------------------------------------------------------------------------->
+            <div class="panel">
+                <div class="g-signin2" style="display:none"></div> <!--for google log in-->
+                <img src="images/logo1.png" alt="Logo Covid Tracking" id="logo">
+                <a href="https://www.sahealth.sa.gov.au/wps/wcm/connect/public+content/sa+health+internet">
+                    <img src="images/sa_health.png" alt="SA health logo" id="SAhealth_logo">
+                </a>
+                <img  src="/images/covid_tracking_logo_with_title.png" alt="covid tracking logo" style="height:8vh;">
+                <!--<a href="http://www.google.com"><img src="arrow.png" alt="arrow" id="arrow"></a>-->
+                <div class="dropdown">
+                  <!--<a href="http://www.google.com"><img src="arrow.png" alt="arrow" id="arrow"></a>-->
+                    <!--<p class="name dropbtn" >{{individual.first_name}} {{individual.last_name}}</p>-->
+                  <button class="dropbtn"><img src="images/arrow.png" alt="arrow" id="arrow"></button>
+                  <p class="name dropbtn" id="name_user_btn">{{individual.first_name}} {{individual.last_name}}</p>
+                  <div class="dropdown-content">
+                    <a href="#" v-on:click="chosen_service='profile', update_profile='profile', get_profile_user()"><i class="fas fa-user-circle"></i> Profile</a>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Log out</a>
+
+                  <!--try put onclick log_out() function from main.js-->
+                  </div>
+
+                </div>
+                <!--<p class="name dropbtn" >{{individual.first_name}} {{individual.last_name}}</p>-->
+                <a v-on:click="chosen_service='profile'"><img src="images/avatar.png" alt="avatar" id="avatar"></a>
+                <!--<a href="http://www.google.com"><img src="images/share.png" alt="share" id="share"></a>-->
+                <div class ="clearer"></div>
+            </div>
+
+            <nav class="navbar">
+                <div class="left">
+                    Covid 19 Tracking Dashboard
+                </div>
+                <ul id="services">
+                    <li class="navbar_tab"><a href="#footer"><i class="fas fa-question"></i>Help</a></li>
+                    <li class="navbar_tab" class="button" id="history_button_indi" v-bind:class="{navbar_tab_selected: chosen_service==='history'}" v-on:click="get_history_individual(),chosen_service='history'"><a href="#"><i class="fas fa-history"></i>History</a></li>
+                    <li class="navbar_tab" v-bind:class="{navbar_tab_selected: chosen_service==='checkin'}" v-on:click="chosen_service='checkin', chosen_checkin='active'"><a href="#checkin"><i class="fas fa-qrcode"></i>Checkin</a></li>
+                    <li class="navbar_tab" id="hotspots_button_indi"v-bind:class="{navbar_tab_selected: chosen_service==='hotspots'}" v-on:click="chosen_service='hotspots'" ><a href="#"><i class="fas fa-map-marked"></i>Hotspots</a></li>
+
+                </ul>
+                <div class ="clearer"></div>
+            </nav>
+        <!-----------------------------------------END OF HEADER---------------------------------------------------------------->
+
+
+
+          <!-------------------------------------------HOTSPOTS----------------------------------------------->
+            <main id="main">
+                <!--<div id="hotspots" v-if="chosen_service==='hotspots'">-->
+                <div id="hotspots" v-show="chosen_service==='hotspots'">
+                    <div id="map" class="map"></div>
+
+                </div>
+
+              <!------------------------------------------CHECK-IN------------------------------------------------->
+
+
+                <!--<div id="checkin" v-else-if="chosen_service==='checkin'">-->
+                <div id="checkin" v-if="chosen_service==='checkin'">
+                    <div id="motto">
+                        <h1>COVID SAFE CHECKING</h1>
+
+                    </div>
+
+                    <h2>Please select a picture from the following options: CODE / GPS</h2>
+
+                    <div id="options" v-if="chosen_checkin==='active'">
+                        <div id="checkin_options">
+                            <!--<p>Using Code</p>-->
+                            <!--<button v-on:click="chosen_checkin='code'"><img src="images/code.jpg" alt="code" id="code"/></button>-->
+                            <button v-on:click="chosen_checkin='code'"><img src="images/entercode1.png" alt="code" id="code"/></button>
+                            <button v-on:click="chosen_checkin='qr', sendLocation()"><img src="images/GPS4.png" alt="gps" id="qr"/></button>
+                            <div class ="clearer"></div>
+                        </div>
+                    </div>
+
+                    <div id="chosen_code" v-if="chosen_checkin==='code'">
+                        <div class="instruction_code">
+                            <h1>ENTER A VALID CODE</h1>
+                        </div>
+                        <form id="submit_field">
+                            <input v-model="code_type" type="text" id="fcode__" name="fname" value="Enter here">
+                            <button id="submit_code" v-on:click="get_code_type($event)">SUBMIT</button>
+                            <!--<button v-on:click="get_code_type()">SUBMIT</button>-->
+                        </form>
+                        <p id="information_code_typing" class="information_indi" style="color: teal"></p>
+                    </div>
+
+                    <div id="chosen_qr" v-if="chosen_checkin==='qr'">
+                        <img src="images/gps.png" alt="gps">
+                        <p id="information_GPS" style="color: teal"></p>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+              <!------------------------------------------- HISTORY----------------------------------------------->
+
+                <div id="history" v-show="chosen_service==='history'">
+
+
+
+                    <table class="content-table">
+                        <thead>
+                            <tr>
+                                <th v-for="value in history_items">
+                                    {{value}}
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr v-for="checkin in history_individual" v-bind:class="{warning_h_:checkin.Warning!='-'}">
+                                <td v-for="item in checkin">
+                                    {{item}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div id='map1'></div>
+
+                </div>
+
+                <!-----------------------------------------PROFILE------------------------------------------->
+                <div class="profile" v-if="chosen_service==='profile'">
+                    <div class="left_profile">
+                        <div class="avatar">
+                            <img src="images/avatar.png" alt="avatar" id="avatar_profile">
+                            <h3 id="name_user">{{individual.username}}</h3>
+                        </div>
+                        <div class="profile_options">
+                            <ul>
+                                <!--<li v-on:click="get_profile_user(), update_profile='profile'"><a href="#">Profile</a></li>-->
+                                <!--<li v-on:click="update_profile='update'"><a href="#">Update profile</a></li>-->
+                                <li v-on:click="get_profile_user(), update_profile='profile'" v-bind:class="{profile_selected: update_profile==='profile'}"><a href="#">Profile</a></li>
+                                <li v-on:click="update_profile='update'" v-bind:class="{profile_selected: update_profile==='update'}"><a href="#">Update profile</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+
+                    <div class="right_profile" v-if="update_profile==='profile'">
+                        <div class="right_profile_container">
+                        <div class="box_left">
+                            <div class="info">
+                                <h4>First name</h4>
+                                <p id="first_name_user">{{individual.first_name}}</p>
+                            </div>
+                            <div class="info">
+                                <h4>DOB</h4>
+                                <p id="DOB_user">{{individual.DOB}}</p>
+                            </div>
+                            <div class="info">
+                                <h4>Email</h4>
+                                <p id="email_user">{{individual.email}}</p>
+                            </div>
+                        </div>
+
+                        <div class="box_right">
+                            <div class="info">
+                                <h4>Last name</h4>
+                                <p id="last_name_user">{{individual.last_name}}</p>
+                            </div>
+                            <div class="info">
+                                <h4>Address</h4>
+                                <p id="address_user">{{individual.address}}</p>
+                            </div>
+                            <div class="info">
+                                <h4>Phone number</h4>
+                                <p id="phone_user">{{individual.phone}}</p>
+                            </div>
+
+                        </div>
+                        </div>
+                    </div>
+
+                    <!-----------------------EDITABLE--------------------------->
+                    <div class="right_profile" v-else-if="update_profile==='update'">
+                            <div class="right_profile_container">
+                            <div class="box_left">
+                                <div class="info">
+                                    <h4>First name</h4>
+                                    <input type="text" v-model="individual.first_name" name="profile_first_name" value="individual.first_name">
+
+                                </div>
+                                <div class="info">
+                                    <h4>DOB</h4>
+                                    <input type="date" v-model="individual.DOB" name="profile_dob" value="individual.DOB">
+                                </div>
+                                <div class="info">
+                                    <h4>Email</h4>
+                                    <input type="text" v-model="individual.email" name="profile_gmail" value="individual.email">
+                                </div>
+                            </div>
+
+                            <div class="box_right">
+                                <div class="info">
+                                    <h4>Last name</h4>
+                                    <input type="text" v-model="individual.last_name" name="profile_last_name" value="individual.last_name">
+                                </div>
+                                <div class="info">
+                                    <h4>Address</h4>
+                                    <input type="text" v-model="individual.address" name="profile_address" value="individual.address">
+                                </div>
+                                <div class="info">
+                                    <h4>Phone number</h4>
+                                    <input type="text" v-model="individual.phone" name="profile_number" value="individual.phone">
+                                </div>
+                            </div>
+                            </div>
+                            <!--<input type="submit" value="SUBMIT">-->
+                            <button id="button_profile_indi" v-on:click="updateUser()">SUBMIT</button>
+                            <p id="profile_individual_update"  style="color: teal"></p>
+
+
+                    </div>
+
+                    <!--------------------------------------------------------->
+
+
+                </div>
+            </main>
+       </div>
+       <footer id="footer">
+                <h2>About SA Health</h2>
+                <p>SA Health: Your official portal to public health services, hospitals, health information and health careers in South Australia</p>
+                <p>Phone number:  0428473949</p>
+                <p>Email:  tracking@covid19.com</p>
+                <p>@2021 SA Health(CC) BY-NC-ND</p>
+        </footer>
+
+    </body>
+</html>

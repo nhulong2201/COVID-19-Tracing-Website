@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>project_Venue</title>
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+        <link rel="stylesheet" type="text/css" href="stylesheets/java_nhap.css" />
+        <script src="https://kit.fontawesome.com/6fa215a695.js" crossorigin="anonymous"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+        <script src="javascripts/main.js" defer></script>
+        <script src="javascripts/covid.js" defer></script>
+
+        <!--mapbox-->
+        <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+        <link href="https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css" rel="stylesheet">
+        <script src="https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js"></script>
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+        <meta name="google-signin-client_id" content="195247369660-khs98ng8dducmrtrm2fqgilrha5nagp0.apps.googleusercontent.com">
+
+        <!--geocoder-->
+        <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js'></script>
+        <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css' type='text/css' />
+    </head>
+
+    <body onload="adminVue.get_profile_venue()">
+         <div id="app">
+
+                              <!--HEADER-->
+        <!--------------------------------------------------------------------------->
+
+            <div class="panel">
+
+                <div class="g-signin2" style="display:none"></div>
+                <!--for google log in-->
+                <img src="images/logo1.png" alt="Logo Covid Tracking" id="logo">
+                <a href="https://www.sahealth.sa.gov.au/wps/wcm/connect/public+content/sa+health+internet">
+                    <img src="images/sa_health.png" alt="SA health logo" id="SAhealth_logo">
+                </a>
+                <img src="/images/covid_tracking_logo_with_title.png" alt="covid tracking logo" style="height:8vh;">
+                <div class="dropdown">
+                  <button class="dropbtn">
+                      <img src="images/arrow.png" alt="arrow" id="arrow">
+                  </button>
+                  <p class="name dropbtn" id="name_user_btn">{{venue.first_name}} {{venue.last_name}}</p>
+                  <div class="dropdown-content">
+                    <a href="#"  v-on:click="chosen_service='profile', update_profile='profile', get_profile_venue()"><i class="fas fa-user-circle"></i> Profile</a>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Log out</a>
+                  </div>
+                </div>
+
+                <a v-on:click="chosen_service='profile'">
+                    <img src="images/avatar.png" alt="avatar" id="avatar">
+                </a>
+                <div class ="clearer"></div>
+            </div>
+            <nav class="navbar">
+                <div class="left">
+                    Covid 19 Tracking Dashboard
+                </div>
+                <ul id="services">
+                    <li class="navbar_tab"><a href="#footer"><i class="fas fa-question"></i>Help</a></li>
+                    <li class="navbar_tab" v-bind:class="{navbar_tab_selected: chosen_service==='history'}" v-on:click="chosen_service='history', get_checkinhistory()"><a href="#"><i class="fas fa-history"></i>History</a></li>
+                    <li class="navbar_tab" v-bind:class="{navbar_tab_selected: chosen_service==='manage'}" v-on:click="get_venueinfo(), chosen_service='manage', chosen_checkin='active'" ><a href="#"><i class="fas fa-edit"></i>Manage</a></li>
+                    <li class="navbar_tab" id="hotspots_button_indi" v-bind:class="{navbar_tab_selected: chosen_service==='hotspots'}" v-on:click="chosen_service='hotspots'"><a href="#"><i class="fas fa-map-marked"></i>Hotspots</a></li>
+                </ul>
+                <div style="clear:both"></div>
+            </nav>
+
+        <!-----------------------------------------END OF HEADER---------------------------------------------------------------->
+
+          <!-------------------------------------------HOTSPOTS----------------------------------------------->
+
+            <main>
+            <div id="hotspots" v-show="chosen_service==='hotspots'">
+                <!--the javascript of map is around the end of covid.js-->
+                <div id="map"></div>
+            </div>
+
+          <!------------------------------------------Manage------------------------------------------------->
+
+            <div id="ch_manage" v-if="chosen_service==='manage'">
+                <h2>Venue Information</h2>
+                <div id="venue_info_update_form">
+                    <form id="ch_table">
+                        <label>Business name:</label><br>
+                        <input v-model="managev.name" type="text" id="bname" name="bname">
+                        <br>
+                        <label for="number_venue">Number of venue:</label><br>
+                        <input v-model="managev.number_venue" type="text" id="number_venue" name="number_venue">
+                        <br>
+                        <label for="street">Stress:</label><br>
+                        <input v-model="managev.street" type="text" id="street" name="street">
+                        <br>
+                        <label class="suburb">Suburb:</label><br>
+                        <input v-model="managev.suburb" type="text" id="suburb" name="suburb">
+                        <br>
+                        <label for="postcode">Postcode:</label><br>
+                        <input v-model="managev.postcode" type="number" id="postcode" name="postcode">
+                        <br>
+                        <label for="city">City:</label><br>
+                        <input v-model="managev.city" type="text" id="city" name="city">
+                        <br>
+                        <label for="state">State:</label><br>
+                        <input v-model="managev.state" type="text" id="state" name="state">
+                        <br>
+                    <br>
+                    <button id="saveinformation" type="button" class="save" v-on:click = "send_venueinfo($event)">SUBMIT</button>
+                    <!--show "Waiting for approval from Health Official"-->
+                    <p id="submit_clicked" style="text-align: center; color: teal"></p>
+                    </form>
+                </div>
+
+            </div>
+
+            <!------------------------------------------- HISTORY----------------------------------------------->
+
+            <div id="history" v-show="chosen_service==='history'" v-on:click="get_checkinhistory()">
+                <h2>Check-in History at this venue:</h2>
+                <div class="slidecontainer">
+                    <p style="display:inline;">Show number of entries: <span>{{ show_num_entries_venue }}</span> </p>
+                    <input type="range" min="1" max="100" value="50" class="slider" v-model="show_num_entries_venue">
+                </div>
+                <table class="content-table">
+                    <thead>
+                        <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <!--show history date and time-->
+                        <tr v-for="(checkin, index) in checkinv" v-if="index < show_num_entries_venue">
+                            <td >{{ checkin.DatePart }}</td>
+                            <td>{{ checkin.TimePart }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-----------------------------------------PROFILE------------------------------------------->
+
+                <div class="profile" v-if="chosen_service==='profile'">
+                    <div class="left_profile">
+                        <div class="avatar">
+                            <img src="images/avatar.png" alt="avatar" id="avatar_profile">
+                            <h3>{{venue.username}}</h3>
+                        </div>
+                        <div class="profile_options">
+                            <ul>
+                                <li v-on:click="get_profile_venue(), update_profile='profile'" v-bind:class="{profile_selected: update_profile==='profile'}">
+                                    <a href="#">Profile</a>
+                                </li>
+                                <li v-on:click="update_profile='update'" v-bind:class="{profile_selected: update_profile==='update'}">
+                                    <a href="#">Update profile</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="right_profile" v-if="update_profile==='profile'">
+                        <div class="right_profile_container">
+                        <div class="box_left">
+                            <div class="info">
+                                <h4>First name</h4>
+                                <p id = "first_name">{{venue.first_name}}</p>
+                            </div>
+                            <div class="info">
+                                <h4>DOB</h4>
+                                <p id = "dob">{{venue.DOB}}</p>
+                            </div>
+                            <div class="info">
+                                <h4>Email</h4>
+                                <p id = "pemail">{{venue.email}}</p>
+                            </div>
+                        </div>
+
+                        <div class="box_right">
+                            <div class="info">
+                                <h4>Last name</h4>
+                                <p id = "last_name">{{venue.last_name}}</p>
+                            </div>
+                            <div class="info">
+                                <h4>Address</h4>
+                                <p id = "address">{{venue.address}}</p>
+                            </div>
+                            <div class="info">
+                                <h4>Phone number</h4>
+                                <p id = "phone">{{venue.phone}}</p>
+                            </div>
+
+                        </div>
+                        </div>
+                    </div>
+
+                    <!-----------------------Update Profile--------------------------->
+
+                    <div class="right_profile" v-else-if="update_profile==='update'">
+                        <div class="right_profile_container">
+                        <div class="box_left">
+                            <div class="info">
+                                <h4>First name</h4>
+                                <input type="text" v-model="venue.first_name" name="profile_first_name" value="venue.first_name">
+                            </div>
+                            <div class="info">
+                                <h4>DOB</h4>
+                                <input type="date" v-model="venue.DOB" name="profile_dob" value="venue.DOB">
+                            </div>
+                            <div class="info">
+                                <h4>Email</h4>
+                                <input type="text" v-model="venue.email" name="profile_gmail" value="venue.email">
+                            </div>
+                        </div>
+
+                        <div class="box_right">
+                            <div class="info">
+                                <h4>Last name</h4>
+                                <input type="text" v-model="venue.last_name" name="profile_last_name" value="venue.last_name">
+                            </div>
+                            <div class="info">
+                                <h4>Address</h4>
+                                <input type="text" v-model="venue.address" name="profile_address" value="venue.address">
+                            </div>
+                            <div class="info">
+                                <h4>Phone number</h4>
+                                <input type="text" v-model="venue.phone" name="profile_number" value="venue.phone">
+                            </div>
+                        </div>
+                        </div>
+                         <button id="button_profile_indi" v-on:click = "send_profile()">SUBMIT</button>
+                         <p id="profile_individual_update" style="color: teal"></p>
+
+                    </div>
+
+                    <!--------------------------------------------------------->
+
+                </div>
+
+            </main>
+            </div>
+
+            <!-------------------------------------------FOOTER----------------------------------------------->
+
+            <footer id="footer">
+                <h2>About SA Health</h2>
+                <p>SA Health: Your official portal to public health services, hospitals, health information and health careers in South Australia</p>
+                <p>Phone number:  0428473949</p>
+                <p>Email:  tracking@covid19.com</p>
+                <p>@2021 SA Health(CC) BY-NC-ND</p>
+            </footer>
+
+    </body>
+</html>

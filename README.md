@@ -18,14 +18,14 @@
 
     individual:
         username: nhulong2001
-        email: a1787526@student.adelaide.edu.au
         password: Longnhu2201
+        email: a1787526@student.adelaide.edu.au
 
     manager:
         username: andy2201
         email:
         password: andy123
-
+    ***If you want to login with Google, you must first sign up with the email account use want to use. Otherwise, it will not work***
 4. To create a new admin account, you have to log in first using one of the existing admin account, and click "add new admin" in the top right corner dropdown menue.
 5. ***IMPORTANT***
    When managers create their account, we assume that Health Officials will create a venue and assign it to managers.

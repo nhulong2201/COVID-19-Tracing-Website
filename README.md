@@ -1,5 +1,11 @@
-# contact-tracing-website
+# COVID 19 Tracing website
 
+This website allows users to checkin Covid 19 at different places. It also allows venue owners to manage the number of visits at their restaurant. More importantly, the web app gives health officials detailed reports about current Covid 19 situation.
+
+![covid_demo](https://user-images.githubusercontent.com/64762998/236666414-6544206d-43a6-4280-9029-b77419e92546.png)
+
+
+# Instructions to run the web:
 
 1. It is recommended to access this website using Google Chrome.
 
